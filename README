@@ -1,0 +1,60 @@
+dvb30
+=====
+
+This program runs a Discord verification bot for a single guild and a small
+HTTP service for the Google OAuth callback. Users run /verify in Discord,
+receive an ephemeral Google sign-in link, authenticate with a umich.edu
+account, and then receive the configured verified role automatically.
+
+Configuration and usage
+-----------------------
+
+The program takes exactly one argument:
+
+    dvb30 path/to/dvb30.conf
+
+The configuration file format is shown in dvb30.example.conf. All fields are
+required.
+
+To set the program up, do the following:
+
+1. Create a Discord bot and place it in the target guild.
+2. Create or identify the Discord role to be granted after verification.
+3. Make sure the bot can assign that role and that the role is below the bot's
+   highest role.
+4. Create a Google OAuth client and register the callback URL you intend to use
+   as google.redirect_url.
+5. Write a configuration file containing the Discord token and guild ID, the
+   Google client ID and secret, the HTTP listen address, the verified role ID,
+   and a long random cookie_secret.
+6. Start the program with that configuration file.
+
+How it works
+------------
+
+1. On startup, dvb30 connects to Discord, registers /verify, fetches the
+   Google OpenID Connect discovery document, and initializes JWKS-based ID
+   token verification.
+2. When a user runs /verify, the bot generates a signed, short-lived state
+   token containing the Discord user ID, guild ID, and expiry time.
+3. The bot replies ephemerally with a Google OAuth authorization URL carrying
+   that state token.
+4. Google redirects the user back to /auth with an authorization code.
+5. dvb30 validates the state token, exchanges the code for tokens, validates
+   the Google ID token, and checks that the email is verified and belongs to
+   umich.edu.
+6. If everything succeeds, dvb30 assigns the configured verified role to the
+   Discord account.
+
+Development
+-----------
+
+The development of dvb30 occurs online at a public Git repository, where
+users and developers are advised to submit issues and patches:
+
+    https://github.com/UMichDevelopers/dvb30
+
+License
+-------
+
+The code is licensed under the 3-clause BSD license.
