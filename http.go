@@ -20,12 +20,25 @@ func newHTTPServer(authenticator *googleAuthenticator, bot *discordBot) *httpSer
 }
 
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Printf("http %s %s", r.Method, r.URL.Path)
+
 	switch r.URL.Path {
+	case "/":
+		s.handleIndex(w, r)
 	case "/auth":
 		s.handleAuth(w, r)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func (s *httpServer) handleIndex(w http.ResponseWriter, r *http.Request) {
+	writePage(
+		w,
+		http.StatusOK,
+		"Discord Verification",
+		"Use the /verify command in Discord. The bot will send you a Google sign-in link. After you sign in with your umich.edu account, this service will assign your verified role automatically.",
+	)
 }
 
 func (s *httpServer) handleAuth(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +69,7 @@ func (s *httpServer) handleAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("verification complete for user_id=%d guild_id=%d", tokenState.UserID, tokenState.GuildID)
 	writePage(w, http.StatusOK, "Verification Complete", "Your Discord account is now verified.")
 }
 

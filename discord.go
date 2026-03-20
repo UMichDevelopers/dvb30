@@ -56,6 +56,7 @@ func (b *discordBot) Open() error {
 		return err
 	}
 
+	log.Printf("registered /%s for guild %d", verifyCommandName, b.cfg.Discord.GuildID)
 	return nil
 }
 
@@ -108,6 +109,7 @@ func (b *discordBot) handleInteractionCreate(session *discordgo.Session, interac
 		return
 	}
 
+	log.Printf("issued verification link for user_id=%d guild_id=%d", userID, guildID)
 	if err := respondEphemeral(session, interaction.Interaction, fmt.Sprintf("Open this link to verify: %s", authURL)); err != nil {
 		log.Printf("interaction response: %v", err)
 	}
@@ -124,9 +126,15 @@ func respondEphemeral(session *discordgo.Session, interaction *discordgo.Interac
 }
 
 func (b *discordBot) addVerifiedRole(guildID uint64, userID uint64) error {
-	return b.session.GuildMemberRoleAdd(
+	err := b.session.GuildMemberRoleAdd(
 		strconv.FormatUint(guildID, 10),
 		strconv.FormatUint(userID, 10),
 		strconv.FormatUint(b.cfg.Roles.Verified, 10),
 	)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("assigned verified role to user_id=%d guild_id=%d role_id=%d", userID, guildID, b.cfg.Roles.Verified)
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/mail"
 	"strings"
@@ -36,11 +37,13 @@ func newGoogleAuthenticator(ctx context.Context, cfg *Config) (*googleAuthentica
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("fetched google oidc discovery document")
 
 	kf, err := keyfunc.NewDefaultCtx(ctx, []string{discovery.JWKSURI})
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("initialized google jwks keyfunc from %s", discovery.JWKSURI)
 
 	return &googleAuthenticator{
 		cfg: cfg,
@@ -93,6 +96,7 @@ func (a *googleAuthenticator) authURL(userID uint64, guildID uint64) (string, er
 		return "", err
 	}
 
+	log.Printf("built google auth url for user_id=%d guild_id=%d expires_at=%d", userID, guildID, time.Now().Add(time.Duration(a.cfg.TokenExpirySeconds)*time.Second).Unix())
 	return a.oauth.AuthCodeURL(
 		state,
 		oauth2.AccessTypeOnline,
@@ -112,11 +116,13 @@ func (a *googleAuthenticator) verifyCode(ctx context.Context, stateToken string,
 	if err != nil {
 		return tokenState{}, err
 	}
+	log.Printf("validated oauth state for user_id=%d guild_id=%d", state.UserID, state.GuildID)
 
 	token, err := a.oauth.Exchange(ctx, code)
 	if err != nil {
 		return tokenState{}, err
 	}
+	log.Printf("exchanged oauth code for user_id=%d guild_id=%d", state.UserID, state.GuildID)
 
 	rawIDToken, ok := token.Extra("id_token").(string)
 	if !ok || rawIDToken == "" {
@@ -127,6 +133,7 @@ func (a *googleAuthenticator) verifyCode(ctx context.Context, stateToken string,
 		return tokenState{}, err
 	}
 
+	log.Printf("validated google id token for user_id=%d guild_id=%d", state.UserID, state.GuildID)
 	return state, nil
 }
 

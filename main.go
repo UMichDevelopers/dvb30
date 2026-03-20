@@ -32,6 +32,8 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	log.Printf("starting dvb30")
+
 	authenticator, err := newGoogleAuthenticator(ctx, cfg)
 	if err != nil {
 		return err
@@ -46,6 +48,7 @@ func run() error {
 	if err := bot.Open(); err != nil {
 		return err
 	}
+	log.Printf("discord bot connected and slash command registered")
 
 	server := &http.Server{
 		Addr:    cfg.HTTP.Addr,
@@ -57,6 +60,7 @@ func run() error {
 		return err
 	}
 	defer listener.Close()
+	log.Printf("http server listening on %s %s", cfg.HTTP.Net, cfg.HTTP.Addr)
 
 	serverErr := make(chan error, 1)
 	go func() {
@@ -70,6 +74,7 @@ func run() error {
 
 	select {
 	case <-ctx.Done():
+		log.Printf("shutdown signal received")
 	case err := <-serverErr:
 		if err != nil {
 			return err
