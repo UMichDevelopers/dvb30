@@ -46,6 +46,22 @@ How it works
 6. If everything succeeds, dvb30 assigns the configured verified role to the
    Discord account.
 
+State token format
+------------------
+
+Let:
+
+    U be the 64-bit Discord user ID,
+    G be the 64-bit Discord guild ID,
+    T be the 64-bit Unix expiry time in seconds, and
+    K = SHA256(cookie_secret).
+
+Then,
+
+    M = BE64(U) || BE64(G) || BE64(T)
+    S = HMAC-SHA256(K, M)
+    state = BASE64URL(M || S)
+
 Development
 -----------
 
