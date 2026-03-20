@@ -85,7 +85,7 @@ func (b *discordBot) handleInteractionCreate(session *discordgo.Session, interac
 	userID, err := strconv.ParseUint(interaction.Member.User.ID, 10, 64)
 	if err != nil {
 		log.Printf("parse user id: %v", err)
-		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link."); err != nil {
+		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link: "+err.Error()); err != nil {
 			log.Printf("interaction response: %v", err)
 		}
 		return
@@ -94,7 +94,7 @@ func (b *discordBot) handleInteractionCreate(session *discordgo.Session, interac
 	guildID, err := strconv.ParseUint(interaction.GuildID, 10, 64)
 	if err != nil {
 		log.Printf("parse guild id: %v", err)
-		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link."); err != nil {
+		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link: "+err.Error()); err != nil {
 			log.Printf("interaction response: %v", err)
 		}
 		return
@@ -103,14 +103,14 @@ func (b *discordBot) handleInteractionCreate(session *discordgo.Session, interac
 	authURL, err := b.authenticator.authURL(userID, guildID)
 	if err != nil {
 		log.Printf("generate auth url: %v", err)
-		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link."); err != nil {
+		if err := respondEphemeral(session, interaction.Interaction, "Could not generate a verification link: "+err.Error()); err != nil {
 			log.Printf("interaction response: %v", err)
 		}
 		return
 	}
 
 	log.Printf("issued verification link for user_id=%d guild_id=%d", userID, guildID)
-	if err := respondEphemeral(session, interaction.Interaction, fmt.Sprintf("Open this link to verify: %s", authURL)); err != nil {
+	if err := respondEphemeral(session, interaction.Interaction, fmt.Sprintf("Open this link to verify:\n\n\t%s\n\nDo not share this link with anyone.", authURL)); err != nil {
 		log.Printf("interaction response: %v", err)
 	}
 }
