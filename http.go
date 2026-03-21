@@ -77,8 +77,38 @@ func writePage(w http.ResponseWriter, status int, title string, body string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	_, _ = fmt.Fprintf(
-		w,
-		"<!doctype html><html><head><title>%s</title></head><body><h1>%s</h1><p>%s</p></body></html>",
+		w, `
+<!doctype html>
+<html>
+	<head>
+		<meta charset=\"utf-8\">
+		<title>%s</title>
+	</head>
+	<body>
+		<h1>%s</h1>
+		<p>%s</p>
+		<footer>
+			<p>
+				Provided by
+				<a href="https://github.com/UMichDevelopers/dvb30">dvb30</a>.
+				Copyright © 2026
+				<a href="https://runxiyu.org">Runxi Yu</a>.
+			</p>
+			<details>
+				<summary>3-clause BSD license</summary>
+				<p>
+					Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+				</p>
+				<ol>
+					<li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+					<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+					<li>The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.</li>
+				</ol>
+				<p>THIS SOFTWARE IS PROVIDED BY THE AUTHOR “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+			</details>
+		</footer>
+	</body>
+</html>`,
 		html.EscapeString(title),
 		html.EscapeString(title),
 		html.EscapeString(body),
